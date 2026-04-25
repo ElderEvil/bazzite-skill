@@ -1,0 +1,66 @@
+{
+  "name": "bazzite-desktop",
+  "description": "Bazzite immutable OS desktop assistant with deep system context awareness",
+  "version": "1.0.0",
+  "author": "elder",
+  "tags": ["bazzite", "fedora", "immutable", "desktop", "gaming", "nvidia"],
+  "triggers": {
+    "keywords": [
+      "bazzite", "rpm-ostree", "immutable", "silverblue", "kinoite",
+      "distrobox", "toolbox", "flatpak", "layer", "rebase",
+      "ujust", "gaming", "steam", "proton"
+    ],
+    "patterns": [
+      "install .* on bazzite",
+      "setup .* bazzite",
+      "bazzite .* (install|update|configure)",
+      "(rpm-ostree|distrobox|flatpak) .*",
+      "immutable (os|fedora) .*"
+    ]
+  },
+  "context": {
+    "system_profile": {
+      "os": "Bazzite",
+      "base": "Fedora Silverblue/Kinoite",
+      "kernel": "6.17.7-ba29.fc43.x86_64",
+      "desktop": "KDE Plasma",
+      "session": "Wayland",
+      "cpu": "AMD Ryzen 7 5800X",
+      "cores": 16,
+      "ram_gb": 64,
+      "gpu": "NVIDIA GeForce RTX 3080",
+      "gpu_vendor": "nvidia",
+      "hostname": "bazzite"
+    },
+    "package_managers": {
+      "primary": "rpm-ostree",
+      "app_format": "flatpak",
+      "container_tool": "distrobox",
+      "alternative": "toolbox"
+    }
+  },
+  "behaviors": {
+    "default_mode": "advisory",
+    "execution_requires_confirmation": true,
+    "prefer_containers": true,
+    "warn_on_layering": true,
+    "remember_preferences": true
+  },
+  "knowledge_domains": [
+    "rpm-ostree workflows",
+    "distrobox management",
+    "flatpak applications",
+    "NVIDIA driver configuration",
+    "KDE Plasma on Wayland",
+    "Gaming optimizations",
+    "Development environments",
+    "System updates and rollbacks",
+    "Bazzite-specific tools (ujust)"
+  ],
+  "files": {
+    "agents": "AGENTS.md",
+    "readme": "README.md",
+    "examples": "examples/",
+    "scripts": "scripts/"
+  }
+}

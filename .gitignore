@@ -1,0 +1,22 @@
+# Backup files
+*.bak
+*.swp
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets (never commit)
+*.key
+*.pem
+.env
+.shell_secrets
+
+# Generated
+*.log
