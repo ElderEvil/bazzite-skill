@@ -1,6 +1,6 @@
 # Bazzite Desktop Skill for OpenCode
 
-A specialized skill that makes OpenCode deeply aware of Bazzite (immutable Fedora) systems and their unique workflows.
+A specialized skill that makes OpenCode deeply aware of Bazzite (immutable Fedora) systems and their unique workflows. Follows the [Agent Skills](https://agentskills.io/) specification for cross-agent compatibility.
 
 ## What This Skill Does
 
@@ -50,71 +50,23 @@ Once loaded, OpenCode will automatically use Bazzite-aware responses when you:
 - Want gaming optimizations
 - Ask about system maintenance
 
-### Example Interactions
-
-**Installing software:**
-```
-You: "Install Node.js"
-
-Agent: "On your Bazzite system, I recommend using a Distrobox container...
-  [shows distrobox commands instead of dnf]"
-```
-
-**System updates:**
-```
-You: "Update my system"
-
-Agent: "I'll update your Bazzite system. This includes the OS image and Flatpaks...
-  [shows rpm-ostree upgrade + flatpak update]"
-```
-
-**Gaming setup:**
-```
-You: "Optimize for gaming"
-
-Agent: "With your RTX 3080, let's run Bazzite's gaming setup...
-  [shows ujust setup-gaming]"
-```
+The skill follows the [Agent Skills specification](https://agentskills.io/specification) — `SKILL.md` contains the YAML frontmatter with `name` and `description` for agent discovery, plus the full skill instructions. `AGENTS.md` is a body mirror for backward compatibility with OpenCode.
 
 ## File Structure
 
 ```
 bazzite-skill/
-├── AGENTS.md              # Main skill instructions (loaded by OpenCode)
-├── README.md              # This file
-├── skill.json             # Skill metadata and configuration
-├── examples/              # Example prompts and responses
-│   ├── install-software.md
-│   ├── development-setup.md
-│   └── gaming-optimization.md
-├── scripts/               # Helper scripts (optional)
-│   └── system-info.sh
-└── docs/                  # Additional documentation
-    ├── rpm-ostree-guide.md
-    └── distrobox-patterns.md
+├── SKILL.md     # Primary skill file (YAML frontmatter + full content)
+├── AGENTS.md    # Body mirror of SKILL.md (backward compatibility)
+├── README.md    # This file
+└── .gitignore
 ```
 
 ## Customization
 
-### Updating System Profile
+Edit `SKILL.md` directly to customize the skill. If you make changes, remember to also update `AGENTS.md` to keep them in sync (it should be a body-only mirror of SKILL.md, without the YAML frontmatter).
 
-Edit `skill.json` to match your hardware:
-
-```json
-"system_profile": {
-  "cpu": "Your CPU",
-  "ram_gb": 32,
-  "gpu": "Your GPU",
-  "gpu_vendor": "amd|nvidia|intel"
-}
-```
-
-### Adding New Behaviors
-
-Extend `AGENTS.md` with:
-- New common tasks
-- Additional safety rules
-- Project-specific workflows
+To update the system profile for your hardware, edit the System Detection section in SKILL.md.
 
 ## Philosophy
 
@@ -125,10 +77,6 @@ This skill follows Bazzite's design philosophy:
 3. **Flatpak Native**: Install apps via Flatpak when available
 4. **Safety**: Explain consequences before system modifications
 5. **Rollback Awareness**: Always know how to undo changes
-
-## Contributing
-
-This is a personal skill tuned for a specific Bazzite installation. Feel free to fork and adapt for your own system.
 
 ## License
 

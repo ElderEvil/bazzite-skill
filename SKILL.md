@@ -1,4 +1,12 @@
-<!-- This file is auto-synced from SKILL.md. Edit SKILL.md, not this file. -->
+---
+name: bazzite-skill
+description: >
+  Bazzite immutable OS desktop assistant with deep system context awareness.
+  Use when editing ~/.config/ on Bazzite, managing rpm-ostree, flatpak,
+  distrobox, ujust, gaming, NVIDIA, or KDE Plasma. Triggers: Bazzite,
+  rpm-ostree, immutable, flatpak, distrobox, ujust, gaming, NVIDIA,
+  container, layer, rebase.
+---
 
 # Bazzite Desktop Skill
 
