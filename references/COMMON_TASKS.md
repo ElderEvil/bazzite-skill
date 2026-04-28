@@ -103,8 +103,9 @@ distrobox enter node-dev
 npm install -g typescript ts-node nodemon
 
 # Database via Podman (more standard for services)
-podman run -d --name postgres-dev -e POSTGRES_PASSWORD=devpass -e POSTGRES_DB=devdb -p 5432:5432 postgres:16
-podman run -d --name redis-dev -p 6379:6379 redis:7
+# Use environment variables or a .env file for secrets; never hardcode passwords.
+podman run -d --name postgres-dev -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" -e POSTGRES_DB="${POSTGRES_DB}" -e POSTGRES_USER="${POSTGRES_USER:-postgres}" -p 5432:5432 postgres:16
+podman run -d --name redis-dev -e REDIS_PASSWORD="${REDIS_PASSWORD}" -p 6379:6379 redis:7
 ```
 
 **Export tools to host:**

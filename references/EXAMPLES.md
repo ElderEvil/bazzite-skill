@@ -20,8 +20,14 @@
 
 3. **Last Resort (Layering)**: Only if you truly need a host Docker daemon.
    ```bash
+   # Pre-check: review current deployment and prepare rollback
+   rpm-ostree status
+   # Optional safety prep: know how to rollback if needed
+   # rpm-ostree rollback && systemctl reboot
+
    rpm-ostree install docker-ce docker-ce-cli containerd.io
-   # Requires reboot
+   # Reboot required to apply layered packages
+   systemctl reboot
    ```
    ⚠️ This increases image size and update time.
 
@@ -81,10 +87,10 @@ which rg || rg --version
 # If not found, use Homebrew (preferred for CLI tools)
 brew install ripgrep
 
-# Or try a temporary overlay to test first
-rpm-ostree usroverlay
-sudo dnf install ripgrep
-# (lost on reboot — use this to test before committing)
+# Or install inside a Distrobox container (no host changes)
+distrobox create --name cli-tools --image fedora:latest
+distrobox enter cli-tools
+# Inside container: install with the container's package manager
 ```
 
 Want me to check if it's already installed?

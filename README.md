@@ -54,7 +54,7 @@ The skill follows the [Agent Skills specification](https://agentskills.io/specif
 
 ## File Structure
 
-```
+```text
 bazzite-skill/
 ├── SKILL.md                    # Primary skill file (YAML frontmatter + core instructions)
 ├── AGENTS.md                   # Body mirror of SKILL.md (backward compatibility)

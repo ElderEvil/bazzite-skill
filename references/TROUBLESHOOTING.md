@@ -7,6 +7,14 @@
 rpm-ostree status
 
 # Rebase to a different image stream or version
+# Pre-flight: capture current state and ensure you can recover
+rpm-ostree status
+# Verify no outstanding overrides that could conflict
+rpm-ostree override list
+# Prepare rollback path: if the rebase fails or breaks something,
+# you can return to the previous deployment with:
+#   rpm-ostree rollback && systemctl reboot
+# Ensure critical data is backed up before rebasing.
 rpm-ostree rebase <ref>
 # Example: rpm-ostree rebase bazzite:stable/bazzite-nvidia
 
@@ -111,13 +119,20 @@ electron --ozone-platform-hint=auto
 # 1. Check current state
 rpm-ostree status
 
-# 2. Rollback to previous deployment
+# 2. Confirm rollback with the user
+# Explain impact: "This will revert to the previous OS deployment.
+# Any layered packages installed after that deployment will be removed.
+# A reboot is required."
+# Prompt: "Type 'yes' to proceed with rollback:"
+# Only continue if the user explicitly confirms.
+
+# 3. Rollback to previous deployment (only after confirmation)
 rpm-ostree rollback
 
-# 3. Reboot to apply
+# 4. Reboot to apply
 systemctl reboot
 
-# 4. Verify after reboot
+# 5. Verify after reboot
 rpm-ostree status
 ```
 
