@@ -50,15 +50,19 @@ Once loaded, OpenCode will automatically use Bazzite-aware responses when you:
 - Want gaming optimizations
 - Ask about system maintenance
 
-The skill follows the [Agent Skills specification](https://agentskills.io/specification) — `SKILL.md` contains the YAML frontmatter with `name` and `description` for agent discovery, plus the full skill instructions. `AGENTS.md` is a body mirror for backward compatibility with OpenCode.
+The skill follows the [Agent Skills specification](https://agentskills.io/specification) — `SKILL.md` contains the YAML frontmatter with `name` and `description` for agent discovery, plus the core instructions. Detailed procedures live in `references/` and are loaded on demand. `AGENTS.md` is a body mirror for backward compatibility with OpenCode.
 
 ## File Structure
 
-```
+```text
 bazzite-skill/
-├── SKILL.md     # Primary skill file (YAML frontmatter + full content)
-├── AGENTS.md    # Body mirror of SKILL.md (backward compatibility)
-├── README.md    # This file
+├── SKILL.md                    # Primary skill file (YAML frontmatter + core instructions)
+├── AGENTS.md                   # Body mirror of SKILL.md (backward compatibility)
+├── README.md                   # This file
+├── references/
+│   ├── COMMON_TASKS.md         # System detection, updates, installs, dev setup, gaming, NVIDIA
+│   ├── TROUBLESHOOTING.md      # rpm-ostree, Flatpak, Distrobox, NVIDIA, Wayland issues
+│   └── EXAMPLES.md             # Sample agent responses for common requests
 └── .gitignore
 ```
 
@@ -66,7 +70,7 @@ bazzite-skill/
 
 Edit `SKILL.md` directly to customize the skill. If you make changes, remember to also update `AGENTS.md` to keep them in sync (it should be a body-only mirror of SKILL.md, without the YAML frontmatter).
 
-To update the system profile for your hardware, edit the System Detection section in SKILL.md.
+To update the system profile for your hardware, edit the System Detection section in `references/COMMON_TASKS.md`.
 
 ## Philosophy
 
