@@ -7,6 +7,7 @@
 .vscode/
 .idea/
 *.iml
+.zed/
 
 # OS
 .DS_Store
@@ -20,3 +21,15 @@ Thumbs.db
 
 # Generated
 *.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Temporary test / dev files
+*.py
+!scripts/*.py

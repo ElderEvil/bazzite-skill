@@ -24,17 +24,28 @@ This skill is tuned for:
 
 ## Installation
 
-### Option 1: OpenCode Skills Directory
+### Option 1: Global Skill Installation (Recommended)
 
-Copy or symlink this directory to your OpenCode skills location:
+1. **Clone the repository** and copy only the skill files into your Claude skills directory:
+   ```bash
+   git clone <repository-url> bazzite-skill
+   mkdir -p ~/.claude/skills/bazzite-skill/references
+   cp bazzite-skill/SKILL.md ~/.claude/skills/bazzite-skill/
+   cp bazzite-skill/AGENTS.md ~/.claude/skills/bazzite-skill/
+   cp bazzite-skill/README.md ~/.claude/skills/bazzite-skill/
+   cp bazzite-skill/references/*.md ~/.claude/skills/bazzite-skill/references/
+   ```
 
-```bash
-# Find your opencode skills directory
-opencode --skills-dir  # or check ~/.config/opencode/skills/
+   The cloned directory can be deleted whenever you want — the canonical copy lives in `~/.claude/skills/`.
 
-# Copy the skill
-cp -r bazzite-skill ~/.config/opencode/skills/
-```
+2. **(Optional) Symlink for other agents** — if you also use OpenCode, Gemini CLI, Codex, or similar tools that support skills:
+   ```bash
+   ln -s ~/.claude/skills/bazzite-skill ~/.config/opencode/skills/bazzite-skill
+   # Or for other agents:
+   # ln -s ~/.claude/skills/bazzite-skill ~/.config/gemini/skills/bazzite-skill
+   ```
+
+   This keeps `~/.claude/skills/bazzite-skill` as the canonical copy and avoids duplication.
 
 ### Option 2: Project-Local
 
