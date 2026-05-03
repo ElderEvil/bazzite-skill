@@ -10,7 +10,7 @@
    podman run hello-world
    ```
 
-2. **Alternative (Distrobox)**: Run Docker inside a container.
+2. **Alternative (Distrobox)**: Run Docker inside a container. (dnf only works inside containers)
    ```bash
    distrobox create --name docker-host --image fedora:latest
    distrobox enter docker-host
@@ -58,14 +58,15 @@ rpm-ostree status
 
 **User**: "Optimize for gaming"
 
-**Agent**: With your NVIDIA GPU on Bazzite, let's optimize gaming performance:
+**Agent**: On your Bazzite system, let's optimize gaming performance:
 
 ```bash
 # Run Bazzite's gaming setup
 ujust setup-gaming
 
-# Verify NVIDIA driver
-nvidia-smi
+# Verify GPU driver
+# nvidia-smi  (for NVIDIA)
+# lspci | grep -i vga  (to check GPU)
 
 # Configure MangoHud overlay
 mkdir -p ~/.config/MangoHud
@@ -99,18 +100,15 @@ Want me to check if it's already installed?
 
 **User**: "Set up Python development"
 
-**Agent**: On your Bazzite system, I'll set up Python development using Distrobox to keep the host clean:
+**Agent**: On your Bazzite system, use uv for Python development - no host changes needed:
 
 ```bash
-# Create Python development container
-distrobox create --name python-dev --image fedora:latest --home ~/containers/python-dev
+# Install uv (if not present)
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Enter and install tools
-distrobox enter python-dev
-sudo dnf install -y python3 python3-pip python3-virtualenv python3-devel gcc git
-
-# Optional: export Python to host
-distrobox-export --bin /usr/bin/python3 --export-path ~/.local/bin
+# Create venv and install from pyproject.toml
+uv sync
+# Or: uv venv && uv pip install -r requirements.txt (legacy)
 ```
 
-Your `~/projects/` directory is accessible from both host and container. Want me to create this container?
+No need for Distrobox or dnf - uv handles everything. Want me to help set this up?

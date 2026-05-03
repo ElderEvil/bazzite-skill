@@ -17,8 +17,6 @@ free -h | awk '/^Mem:/ {print $2}'
 
 # GPU detection
 lspci | grep -i vga | cut -d':' -f3 | xargs
-cat /sys/class/drm/card*/device/vendor 2>/dev/null | head -n 1
-# 0x10de = NVIDIA, 0x1002 = AMD, 0x8086 = Intel
 
 # Desktop session
 echo $XDG_CURRENT_DESKTOP          # KDE, GNOME, etc.
@@ -65,11 +63,36 @@ flatpak install flathub com.spotify.Client
 # Homebrew (if installed)
 brew install ripgrep jq fzf bat eza
 
-# Or via Distrobox
+# Or via Distrobox (dnf only works inside containers)
 distrobox create --name cli-tools --image fedora:latest
 distrobox enter cli-tools
 sudo dnf install -y ripgrep jq fzf bat eza
 distrobox-export --bin /usr/bin/rg --export-path ~/.local/bin
+```
+
+**Python tools — use uv (fastest) or Distrobox:**
+```bash
+# Install uv via script (works from any terminal)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Use uv inside Distrobox for versioning
+distrobox create --name python-dev --image fedora:latest
+distrobox enter python-dev
+# Inside container: install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create venv and install packages
+uv venv
+uv pip install pandas numpy scipy
+```
+
+**Node.js tools — use pnpm (recommended):**
+```bash
+# Install via Homebrew (includes node + pnpm together)
+brew install node
+
+# pnpm is included with node, or install separately:
+brew install pnpm
 ```
 
 **System services/drivers — use rpm-ostree layering (LAST RESORT):**
@@ -86,33 +109,24 @@ systemctl reboot
 
 ## Development Setup
 
-**Python development:**
+**Python development (use uv - recommended):**
 ```bash
-distrobox create --name python-dev --image fedora:latest --home ~/containers/python-dev
-distrobox enter python-dev
-sudo dnf install -y python3 python3-pip python3-virtualenv python3-devel gcc gcc-c++ make git
-# Install pyenv for version management
-curl https://pyenv.run | bash
+# Install uv via script
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create venv and sync from pyproject.toml
+uv sync
+# Or: uv venv && uv pip install -r requirements.txt (legacy)
 ```
 
-**Full-stack (Node.js + databases):**
+**Node.js development (use pnpm - recommended):**
 ```bash
-# Node.js container
-distrobox create --name node-dev --image node:20
-distrobox enter node-dev
-npm install -g typescript ts-node nodemon
+# Install via Homebrew (includes node + pnpm together)
+brew install node
 
-# Database via Podman (more standard for services)
-# Use environment variables or a .env file for secrets; never hardcode passwords.
-podman run -d --name postgres-dev -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" -e POSTGRES_DB="${POSTGRES_DB}" -e POSTGRES_USER="${POSTGRES_USER:-postgres}" -p 5432:5432 postgres:16
-podman run -d --name redis-dev -e REDIS_PASSWORD="${REDIS_PASSWORD}" -p 6379:6379 redis:7
-```
-
-**Export tools to host:**
-```bash
-distrobox-export --bin /usr/bin/node --export-path ~/.local/bin
-distrobox-export --bin /usr/bin/python3 --export-path ~/.local/bin
-distrobox-export --app code  # Export GUI app desktop entry
+# Create project with pnpm
+pnpm install
+pnpm add <package>
 ```
 
 ## Gaming Optimization
@@ -122,10 +136,13 @@ distrobox-export --app code  # Export GUI app desktop entry
 ujust setup-gaming
 # Configures: GameMode, MangoHud, Proton-GE, Steam, Lutris
 
-# Step 2: NVIDIA-specific optimizations
+# Step 2: GPU-specific optimizations
+# For NVIDIA:
 nvidia-smi
 sudo nvidia-settings -a '[gpu:0]/GPUPowerMizerMode=1'
-cat /proc/driver/nvidia/gpus/*/information
+
+# For AMD:
+# Most gaming optimizations are handled automatically by the AMD driver
 
 # Step 3: MangoHud configuration
 mkdir -p ~/.config/MangoHud
@@ -148,24 +165,20 @@ EOF
 # Step 5: Verify
 gamemoded -s
 mangohud vkcube
-nvidia-smi -q -d PERFORMANCE
-ls ~/.local/share/Steam/compatibilitytools.d/
 ```
 
-## NVIDIA Configuration
+## GPU Configuration
 
 ```bash
-# Check driver status
+# For NVIDIA: check driver status
 nvidia-smi
 
 # Check Vulkan compatibility
 vulkaninfo | head -n 20
 
-# NVIDIA settings GUI
-nvidia-settings
-
-# Verify DRM modeset (should be enabled on Bazzite)
-cat /sys/module/nvidia_drm/parameters/modeset
+# GPU settings GUI (NVIDIA or generic)
+# nvidia-settings
+# kde-system-settings (for KDE Plasma)
 ```
 
 ## Flatpak Management
@@ -205,4 +218,29 @@ brew install ripgrep jq fzf bat eza zoxide
 
 # List installed
 brew list
+```
+
+## uv Setup (Python Package Manager)
+
+```bash
+# Install via script (your preferred method)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Sync from pyproject.toml (recommended)
+uv sync
+
+# Or create venv manually
+uv venv
+uv pip install <package>
+uv pip install -r requirements.txt  # legacy
+```
+
+## pnpm Setup (Node Package Manager)
+
+```bash
+# Install via Homebrew (includes node + pnpm together)
+brew install node
+
+# Or pnpm alone:
+brew install pnpm
 ```

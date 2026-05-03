@@ -83,20 +83,17 @@ distrobox enter <name> -- echo $DISPLAY
 # Should show :0 or wayland-0
 ```
 
-## NVIDIA Issues
+## GPU Issues
 
 ```bash
-# Check GPU status
+# Check GPU status (NVIDIA)
 nvidia-smi
 
 # Check Vulkan support
 vulkaninfo | head -n 20
 
-# Open NVIDIA settings
-nvidia-settings
-
-# Check if NVIDIA DRM modeset is enabled
-cat /sys/module/nvidia_drm/parameters/modeset
+# GPU settings (NVIDIA)
+# nvidia-settings
 ```
 
 ## Wayland Issues
