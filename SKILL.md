@@ -1,7 +1,7 @@
 ---
 name: bazzite-skill
 description: >
-  Bazzite immutable OS desktop assistant with deep system context awareness.
+  Bazzite immutable OS desktop helper for coding agents.
   Use when editing ~/.config/ on Bazzite, managing rpm-ostree, flatpak,
   distrobox, ujust, gaming, GPU drivers, or KDE Plasma. Triggers: Bazzite,
   rpm-ostree, immutable, flatpak, distrobox, ujust, gaming, driver,

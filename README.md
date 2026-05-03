@@ -1,10 +1,12 @@
-# Bazzite Desktop Skill for OpenCode
+# Bazzite Desktop Skill
 
-A specialized skill that makes OpenCode deeply aware of Bazzite (immutable Fedora) systems and their unique workflows. Follows the [Agent Skills](https://agentskills.io/) specification for cross-agent compatibility.
+A specialized skill for coding agents working with Bazzite (immutable Fedora) systems. Follows the [Agent Skills](https://agentskills.io/) specification for cross-agent compatibility.
+
+Works with OpenCode, Claude Desktop, and other agents that support skills.
 
 ## What This Skill Does
 
-This skill transforms OpenCode from a generic Linux assistant into a **Bazzite-native system expert**. It understands:
+Transforms any coding agent into a **Bazzite-native system expert**. It understands:
 
 - Immutable OS architecture (`rpm-ostree`, layering, rebasing)
 - Container-first development workflows (`distrobox`, `toolbox`)
@@ -24,13 +26,18 @@ This skill is tuned for:
 
 ### Option 1: Global Skill Installation (Recommended)
 
-1. **Clone the repository** and copy only the skill files into your Claude skills directory:
+1. **Clone the repository** and copy the skill files into your agent's skills directory:
    ```bash
    git clone <repository-url> bazzite-skill
+   mkdir -p ~/.config/opencode/skills/bazzite-skill/references   # for OpenCode
+   cp bazzite-skill/SKILL.md ~/.config/opencode/skills/bazzite-skill/
+   cp bazzite-skill/AGENTS.md ~/.config/opencode/skills/bazzite-skill/
+   cp bazzite-skill/references/*.md ~/.config/opencode/skills/bazzite-skill/references/
+
+   # Or for Claude Desktop:
    mkdir -p ~/.claude/skills/bazzite-skill/references
    cp bazzite-skill/SKILL.md ~/.claude/skills/bazzite-skill/
    cp bazzite-skill/AGENTS.md ~/.claude/skills/bazzite-skill/
-   cp bazzite-skill/README.md ~/.claude/skills/bazzite-skill/
    cp bazzite-skill/references/*.md ~/.claude/skills/bazzite-skill/references/
    ```
 
@@ -47,11 +54,11 @@ This skill is tuned for:
 
 ### Option 2: Project-Local
 
-Place `AGENTS.md` in your project root. OpenCode will automatically load it when working in that directory.
+Place `AGENTS.md` in your project root. The agent will automatically load it when working in that directory.
 
 ## Usage
 
-Once loaded, OpenCode will automatically use Bazzite-aware responses when you:
+Once loaded, the agent will automatically use Bazzite-aware responses when you:
 
 - Ask about installing software
 - Request system configuration
