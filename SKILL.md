@@ -1,7 +1,7 @@
 ---
 name: bazzite-skill
 description: >
-  Bazzite immutable OS desktop helper for coding agents.
+  Bazzite immutable OS desktop assistant with deep system context awareness.
   Use when editing ~/.config/ on Bazzite, managing rpm-ostree, flatpak,
   distrobox, ujust, gaming, GPU drivers, or KDE Plasma. Triggers: Bazzite,
   rpm-ostree, immutable, flatpak, distrobox, ujust, gaming, driver,
@@ -51,10 +51,26 @@ This skill is for end-user customization on installed Bazzite systems. It is not
 
 1. **Never** run `dnf` or `yum` directly on the Bazzite host — use inside Distrobox containers only.
 2. **Always** run `rpm-ostree status` before making system changes to understand current deployment state.
-3. **Prefer** Flatpak → Distrobox → Homebrew/uv/pnpm → rpm-ostree layering (in that order). Layering is LAST RESORT.
+3. **Prefer** Flatpak → Distrobox → uv/pnpm → Homebrew → rpm-ostree layering (in that order). Layering is LAST RESORT.
 4. **Warn** about reboot requirements after any `rpm-ostree install` or `rpm-ostree uninstall` operation.
 5. **Suggest** rollback procedure (`rpm-ostree rollback` + reboot) before any risky layering or rebasing.
 6. **Never** suggest modifying `/usr` directly — it is immutable. Use `rpm-ostree usroverlay` only for temporary testing (lost on reboot).
+
+## Reference Hardware
+
+This skill was developed and tested on the following configuration but is designed to apply broadly to any Bazzite system:
+
+| Component | Reference |
+|-----------|-----------|
+| **Model** | Custom desktop (ASUS ROG STRIX B550-A) |
+| **CPU** | AMD Ryzen 7 5800X (16 threads) |
+| **GPU** | NVIDIA GeForce RTX 3080 (nvidia-open drivers) |
+| **RAM** | 64 GB DDR4 |
+| **Storage** | 2× NVMe (btrfs, zstd compression) |
+| **Desktop** | KDE Plasma on Wayland |
+| **OS** | Bazzite 44 (nvidia-open variant), OGC kernel 6.19.x |
+
+Patterns should work on other hardware (AMD GPUs, Intel, laptops, handhelds) with driver-specific adjustments noted inline.
 
 ## System Architecture
 
@@ -68,8 +84,6 @@ This skill is for end-user customization on installed Bazzite systems. It is not
 | **GPU drivers** | Proprietary GPU drivers via akmods | `/etc/modprobe.d/`, `gpu-settings` |
 | **Wayland session** | Display server protocol | `$WAYLAND_DISPLAY`, KDE Plasma settings |
 | **ujust** | Bazzite recipe runner (`just` command wrapper) | `/usr/share/just/` (read-only) |
-| **uv** | Ultra-fast Python package manager | `~/.local/bin/`, inside Distrobox |
-| **pnpm** | Fast, disk space-efficient Node package manager | `~/.local/bin/`, inside Distrobox |
 | **Homebrew** | CLI package manager (alternative to layering) | `~/.linuxbrew/`, `~/.config/homebrew/` |
 
 ## Command Discovery
@@ -103,9 +117,9 @@ brew list
 | `rpm-ostree` | System package management | `rpm-ostree install`, `rpm-ostree upgrade` |
 | `flatpak` | Desktop application management | `flatpak install flathub <app>` |
 | `distrobox` | Container management | `distrobox create`, `distrobox enter` |
+| `brew` | CLI tool installation | `brew install ripgrep` |
 | `uv` | Fast Python package manager | `uv pip install`, `uv venv` |
 | `pnpm` | Node.js package manager | `pnpm add`, `pnpm install` |
-| `brew` | CLI tool installation | `brew install ripgrep` |
 
 ## Package Hierarchy
 
@@ -172,7 +186,7 @@ cp ~/.config/kdeglobals ~/.config/kdeglobals.bak.$(date +%s)
 # 1. Create a development container
 distrobox create --name dev --image fedora:latest
 
-# 2. Enter and install tools (dnf only works inside Distrobox)
+# 2. Enter and install tools
 distrobox enter dev
 sudo dnf install -y git vim nodejs python3 golang rust cargo gcc make cmake
 
@@ -218,14 +232,67 @@ rpm-ostree rollback
 systemctl reboot
 ```
 
+### Pattern 5: System Responsiveness Tuning
+
+On KDE Plasma Wayland with NVIDIA, the GPU often idles in a deep power state (P8) causing compositor stutter at high refresh rates. Apply these tweaks in order — they are power-neutral or low-cost:
+
+**CPU responsiveness (zero power at idle):**
+```bash
+# AMD: Set Energy Performance Preference to performance (responsive, still idles low)
+sudo bash -c 'for cpu in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do echo performance > $cpu; done'
+
+# Persist: create a systemd oneshot service
+sudo tee /etc/systemd/system/cpu-epp-performance.service << 'SVC'
+[Unit]
+Description=Set CPU EPP to performance for responsive scaling
+After=sysinit.target
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'for cpu in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do echo performance > $cpu; done'
+RemainAfterExit=yes
+[Install]
+WantedBy=multi-user.target
+SVC
+sudo systemctl enable cpu-epp-performance.service
+```
+
+**NVIDIA PowerMizer (~10-15W extra idle GPU draw):**
+```bash
+# Prevents GPU from dropping to P8, reducing compositor ramp-up latency
+sudo tee /etc/modprobe.d/nvidia-pm.conf << 'EOF'
+options nvidia NVreg_RegistryDwords="PerfLevelSrc=0x2222"
+EOF
+# Requires reboot to take effect
+```
+
+**KWin compositor tuning (zero power cost):**
+```ini
+# Add to ~/.config/kwinrc under [Compositing]
+MaxFPS=144               # Match your monitor's refresh rate
+LatencyPolicy=ExtremelyLow
+Backend=OpenGL
+```
+
+**KDE animation speed (zero resource cost):**
+```ini
+# Add under [KDE] in ~/.config/kdeglobals
+AnimationDurationFactor=0.5
+```
+
+**Swappiness for high-RAM systems (zero power impact):**
+```bash
+sudo sysctl -w vm.swappiness=10
+echo "vm.swappiness=10" | sudo tee /etc/sysctl.d/90-swappiness.conf
+```
+
 ## Decision Framework
 
 When user requests system changes, follow this flow:
 
 1. **Is it a desktop app?** → Flatpak (`flatpak install flathub <app>`)
-2. **Is it a CLI tool?** → Distrobox, uv, pnpm, or Brew
+2. **Is it a CLI tool?** → Distrobox or Brew (`brew install <tool>` or `distrobox create`)
 3. **Is it a system service or driver?** → rpm-ostree layer (**warn about reboot**)
-4. **Is it gaming-related?** → `ujust setup-gaming` + GPU tweaks
+4. **Is it gaming-related?** → `ujust setup-gaming` + NVIDIA tweaks
 5. **Is it a KDE Plasma config?** → Edit `~/.config/` directly
 6. **Not sure?** → Check `ujust --list` first, then `rpm-ostree status`
 
@@ -243,6 +310,6 @@ This skill intentionally does not cover:
 
 Load these files on demand when the relevant topic arises:
 
-- [Common Tasks](references/COMMON_TASKS.md) — System detection, updates, software installation, development setup, gaming optimization, GPU config, Flatpak management, uv/pnpm/Homebrew setup
-- [Troubleshooting](references/TROUBLESHOOTING.md) — rpm-ostree, Flatpak, Distrobox, GPU, Wayland issues; rollback and cleanup procedures
+- [Common Tasks](references/COMMON_TASKS.md) — System detection, updates, software installation, development setup, gaming optimization, NVIDIA config, Flatpak management, Homebrew setup
+- [Troubleshooting](references/TROUBLESHOOTING.md) — rpm-ostree, Flatpak, Distrobox, NVIDIA, Wayland issues; rollback and cleanup procedures
 - [Examples](references/EXAMPLES.md) — Sample agent responses for common user requests

@@ -244,3 +244,35 @@ brew install node
 # Or pnpm alone:
 brew install pnpm
 ```
+
+## KDE Plasma Customization
+
+### Hide System Tray Icons
+
+To remove unwanted icons (Weather, Input Method, Keyboard Layout, etc.) from the bottom-right system tray:
+
+```bash
+# 1. Locate the system tray configuration
+cat ~/.config/plasma-org.kde.plasma.desktop-appletsrc | grep -A 5 "plugin=org.kde.plasma.systemtray"
+
+# 2. Edit the extraItems line in that [General] section
+# Remove the plugin IDs you want to hide.
+# Common ones to remove:
+#   org.kde.plasma.weather          (Weather widget)
+#   org.kde.plasma.manage-inputmethod (Input Method)
+#   org.kde.plasma.keyboardlayout   (Keyboard layout indicator)
+#   org.kde.plasma.keyboardindicator (Num/Caps Lock indicator)
+
+# Example: remove weather and input method from the visible list
+# extraItems=org.kde.kdeconnect,...,org.kde.plasma.volume
+# (just delete the plugins you don't want to show)
+```
+
+**Apply changes:**
+```bash
+killall plasmashell && kstart5 plasmashell &
+```
+
+**Why this works:** KDE Plasma's system tray has an `extraItems` list in `~/.config/plasma-org.kde.plasma.desktop-appletsrc`. Anything listed there appears in the tray; anything omitted stays hidden but still runs in the background. This is safer than uninstalling widgets entirely.
+
+**To restore later:** Add the plugin IDs back to the `extraItems` list and restart `plasmashell`.

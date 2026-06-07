@@ -86,7 +86,7 @@ distrobox enter <name> -- echo $DISPLAY
 ## GPU Issues
 
 ```bash
-# Check GPU status (NVIDIA)
+# Check GPU status
 nvidia-smi
 
 # Check Vulkan support
@@ -94,6 +94,12 @@ vulkaninfo | head -n 20
 
 # GPU settings (NVIDIA)
 # nvidia-settings
+
+# GPU settings (AMD)
+# radeontop or LACT
+
+# Check if NVIDIA DRM modeset is enabled
+cat /sys/module/nvidia_drm/parameters/modeset
 ```
 
 ## Wayland Issues
@@ -136,12 +142,50 @@ rpm-ostree status
 ## Deployment Cleanup
 
 ```bash
-# Remove pending deployment (frees space)
-rpm-ostree cleanup -p
-
-# Remove rollback deployment (frees space)
-rpm-ostree cleanup -r
-
 # Remove ALL unused deployments (nuclear option)
 rpm-ostree cleanup -m
 ```
+
+## Audio / PipeWire Issues
+
+### Low volume despite 100% in system tray
+
+USB audio devices (headsets, speakers) have **two independent volume controls in series**:
+
+| Layer | What controls it | Where to check |
+|-------|-----------------|----------------|
+| **PipeWire software volume** | KDE volume slider, `pactl`, `wpctl` | System tray — shows what you expect |
+| **ALSA hardware mixer** | Physical volume wheel/knob on the device, or `amixer` | Hidden — often gets knocked down without the OS noticing |
+
+The physical controls on USB devices (headset wheel, speaker knob) map directly to the ALSA hardware mixer, **not** the PipeWire volume. So the OS can show 100% while the hardware is actually capped much lower.
+
+**Diagnose it:**
+
+```bash
+# Find your audio card index
+pactl list sinks short
+
+# Check ALSA hardware PCM volume (replace N with card number)
+amixer -c N sget PCM
+
+# Example output for a headset at reduced volume:
+#   Front Left: Playback 51 [69%] [-23.00dB]  ← capped here
+# PipeWire might still show 100% — the hardware is the bottleneck
+```
+
+**Fix it:**
+
+```bash
+# Reset USB device hardware mixer to 100%
+# Replace N with the card number from pactl list sinks
+amixer -c N set PCM 100%
+
+# Find your card number:
+#   pactl list sinks | grep -E "Name|Card"
+# Example (replace N with your card number):
+# amixer -c N set PCM 100%
+```
+
+**Why it happens:** The physical volume wheel/knob on the device adjusts the ALSA mixer directly. This is below PipeWire's visibility — PipeWire shows 100% regardless. If the hardware knob gets bumped (or a game/app adjusts ALSA directly), the max possible volume drops silently.
+
+**Persistence:** USB audio devices initialize their hardware mixer from device firmware on connection. The fix applies immediately and lasts as long as the device stays connected. On reconnect, it'll go to the device's default (usually 100%). If you need to force it on every boot, add the `amixer` commands to a startup script. On Bazzite, use KDE's Autostart (System Settings → Startup and Shutdown) to run the fix on login.

@@ -1,64 +1,52 @@
-# Bazzite Desktop Skill
+# Bazzite Desktop Skill for OpenCode
 
-A specialized skill for coding agents working with Bazzite (immutable Fedora) systems. Follows the [Agent Skills](https://agentskills.io/) specification for cross-agent compatibility.
-
-Works with OpenCode, Claude Desktop, and other agents that support skills.
+A specialized skill that makes OpenCode deeply aware of Bazzite (immutable Fedora) systems and their unique workflows. Follows the [Agent Skills](https://agentskills.io/) specification for cross-agent compatibility.
 
 ## What This Skill Does
 
-Transforms any coding agent into a **Bazzite-native system expert**. It understands:
+This skill transforms OpenCode from a generic Linux assistant into a **Bazzite-native system expert**. It understands:
 
 - Immutable OS architecture (`rpm-ostree`, layering, rebasing)
 - Container-first development workflows (`distrobox`, `toolbox`)
 - Flatpak as the primary application format
 - Bazzite-specific tools (`ujust` recipes)
 - Gaming optimizations (Proton, GameMode, MangoHud)
-- GPU configuration on immutable systems
+- NVIDIA GPU configuration on immutable systems
 
-## System Profile
+## Tested Hardware
 
-This skill is tuned for:
-- **OS**: Bazzite (Fedora based immutable)
-- **Package managers**: Flatpak, Distrobox, uv, pnpm, Homebrew
-- **Desktop**: KDE Plasma on Wayland
+This skill was developed and tested on the following configuration. It is designed to apply broadly to any Bazzite system.
+
+| Component | Reference |
+|-----------|-----------|
+| **Model** | Custom desktop (ASUS ROG STRIX B550-A) |
+| **CPU** | AMD Ryzen 7 5800X |
+| **GPU** | NVIDIA GeForce RTX 3080 |
+| **RAM** | 64 GB |
+| **Desktop** | KDE Plasma on Wayland |
+| **OS** | Bazzite 44 (nvidia-open variant), OGC kernel 6.19.x |
 
 ## Installation
 
-### Option 1: Global Skill Installation (Recommended)
+### Option 1: OpenCode Skills Directory
 
-1. **Clone the repository** and copy the skill files into your agent's skills directory:
-   ```bash
-   git clone <repository-url> bazzite-skill
-   mkdir -p ~/.config/opencode/skills/bazzite-skill/references   # for OpenCode
-   cp bazzite-skill/SKILL.md ~/.config/opencode/skills/bazzite-skill/
-   cp bazzite-skill/AGENTS.md ~/.config/opencode/skills/bazzite-skill/
-   cp bazzite-skill/references/*.md ~/.config/opencode/skills/bazzite-skill/references/
+Copy or symlink this directory to your OpenCode skills location:
 
-   # Or for Claude Desktop:
-   mkdir -p ~/.claude/skills/bazzite-skill/references
-   cp bazzite-skill/SKILL.md ~/.claude/skills/bazzite-skill/
-   cp bazzite-skill/AGENTS.md ~/.claude/skills/bazzite-skill/
-   cp bazzite-skill/references/*.md ~/.claude/skills/bazzite-skill/references/
-   ```
+```bash
+# Find your opencode skills directory
+opencode --skills-dir  # or check ~/.config/opencode/skills/
 
-   The cloned directory can be deleted whenever you want — the canonical copy lives in `~/.claude/skills/`.
-
-2. **(Optional) Symlink for other agents** — if you also use OpenCode, Gemini CLI, Codex, or similar tools that support skills:
-   ```bash
-   ln -s ~/.claude/skills/bazzite-skill ~/.config/opencode/skills/bazzite-skill
-   # Or for other agents:
-   # ln -s ~/.claude/skills/bazzite-skill ~/.config/gemini/skills/bazzite-skill
-   ```
-
-   This keeps `~/.claude/skills/bazzite-skill` as the canonical copy and avoids duplication.
+# Copy the skill
+cp -r bazzite-skill ~/.config/opencode/skills/
+```
 
 ### Option 2: Project-Local
 
-Place `AGENTS.md` in your project root. The agent will automatically load it when working in that directory.
+Place `AGENTS.md` in your project root. OpenCode will automatically load it when working in that directory.
 
 ## Usage
 
-Once loaded, the agent will automatically use Bazzite-aware responses when you:
+Once loaded, OpenCode will automatically use Bazzite-aware responses when you:
 
 - Ask about installing software
 - Request system configuration
@@ -76,15 +64,17 @@ bazzite-skill/
 ├── AGENTS.md                   # Body mirror of SKILL.md (backward compatibility)
 ├── README.md                   # This file
 ├── references/
-│   ├── COMMON_TASKS.md         # System detection, updates, installs, dev setup, gaming, GPU
-│   ├── TROUBLESHOOTING.md      # rpm-ostree, Flatpak, Distrobox, GPU, Wayland issues
+│   ├── COMMON_TASKS.md         # System detection, updates, installs, dev setup, gaming, NVIDIA
+│   ├── TROUBLESHOOTING.md      # rpm-ostree, Flatpak, Distrobox, NVIDIA, Wayland issues
 │   └── EXAMPLES.md             # Sample agent responses for common requests
 └── .gitignore
 ```
 
 ## Customization
 
-Edit `SKILL.md` directly to customize the skill. If you make changes, remember to also sync to `AGENTS.md` to keep them in sync.
+Edit `SKILL.md` directly to customize the skill. If you make changes, remember to also update `AGENTS.md` to keep them in sync (it should be a body-only mirror of SKILL.md, without the YAML frontmatter).
+
+To update the system profile for your hardware, edit the System Detection section in `references/COMMON_TASKS.md`.
 
 ## Philosophy
 
