@@ -5,7 +5,7 @@ description: >
   Use when editing ~/.config/ on Bazzite, managing rpm-ostree, flatpak,
   distrobox, ujust, gaming, GPU drivers, or KDE Plasma. Triggers: Bazzite,
   rpm-ostree, immutable, flatpak, distrobox, ujust, gaming, driver,
-  container, layer, rebase.
+  container, layer, rebase, APC, UPS, apcupsd.
 ---
 
 # Bazzite Desktop Skill
@@ -28,6 +28,7 @@ This skill is for end-user customization on installed Bazzite systems. It is not
 - Setting up development environments on Bazzite
 - Troubleshooting system-level issues on immutable Fedora
 - Homebrew (brew) installation and management on Bazzite
+- Setting up APC UPS monitoring (`apcupsd`) on Bazzite
 
 **If you're about to modify system configuration on Bazzite, STOP and use this skill first.**
 
@@ -232,7 +233,33 @@ rpm-ostree rollback
 systemctl reboot
 ```
 
-### Pattern 5: System Responsiveness Tuning
+### Pattern 5: APC UPS Monitoring (System Service)
+
+APC UPS monitoring via `apcupsd` is a system service that needs rpm-ostree layering. See the Obsidian vault note at `Documents/Obsidian/Vault 666/3-Resources/Bazzite (PC)/APC UPS Monitoring.md` for full details.
+
+```bash
+# Install (lightweight — only 3 new packages if gparted+gtkmm+fail2ban already layered)
+rpm-ostree install apcupsd
+# Reboot required
+
+# Config: /etc/apcupsd/apcupsd.conf
+#   UPSNAME <name>
+#   UPSTYPE usb
+#   DEVICE          # blank = auto-detect
+#   BATTERYLEVEL 5  # shutdown at 5%
+#   MINUTES 3       # shutdown at 3 min runtime
+#   TIMEOUT 0       # disable timer-based shutdown
+
+# Enable for next boot (or after reboot):
+systemctl enable apcupsd
+
+# Check status:
+apcaccess status
+```
+
+If the battery is dead, see the APC Battery Diagnosis note at `Documents/Obsidian/Vault 666/3-Resources/Hardware & Peripherals/APC Back-UPS 750VA IEC - Diagnosis.md`.
+
+### Pattern 6: System Responsiveness Tuning
 
 On KDE Plasma Wayland with NVIDIA, the GPU often idles in a deep power state (P8) causing compositor stutter at high refresh rates. Apply these tweaks in order — they are power-neutral or low-cost:
 
